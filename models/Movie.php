@@ -104,7 +104,7 @@ class Movie extends \yii\db\ActiveRecord
                     $order_by_query = "date_published DESC";
                     break;
                 case Movie::ORDER_BY_LIKES:
-                    $order_by_query = "likes ASC";
+                    $order_by_likes = 1;
                     break;
                 case Movie::ORDER_BY_HATES:
                     $order_by_query = "hates ASC";
@@ -131,13 +131,48 @@ class Movie extends \yii\db\ActiveRecord
         ->asArray()
         ->all();
 
+
+        if( isset($order_by_likes) ){
+
+            usort( $user_movie , function( $a, $b ) { 
+            
+                if( !isset($a['likeCount']['0']['like_count'] ) ){
+                    $a['likeCount']['0']['like_count'] = 0;
+                }
+    
+                if( !isset($b['likeCount']['0']['like_count'] ) ){
+                    $b['likeCount']['0']['like_count'] = 0;
+                }
+                
+                return $a['likeCount']['0']['like_count'] <=> $b['likeCount']['0']['like_count'];
+            } );
+
+        }
+        // echo "<pre>"; print_r($user_movie) ; die();
+
         return $user_movie;
     }
 
-    public function getMoviesAndLikes($user_id){
+    public function getMoviesAndLikes($user_id , $order_by = 0){
 
         // $user_id = Yii::$app->session->get("user_id");
-    
+        $order_by_query = "";
+        if( $order_by !== Movie::ORDER_BY_ID){
+
+            switch ($order_by) {
+                case Movie::ORDER_BY_DATE :
+                    $order_by_query = "date_published DESC";
+                    break;
+                case Movie::ORDER_BY_LIKES:
+                    $order_by_likes = 1;
+                    break;
+                case Movie::ORDER_BY_HATES:
+                    $order_by_query = "hates ASC";
+                    break;
+            }
+
+        }
+
         $movie = Movie::find()
         ->with(
             [
@@ -152,24 +187,30 @@ class Movie extends \yii\db\ActiveRecord
                 }
             ]
         )
+        ->orderBy($order_by_query)
         ->asArray()
         ->all();
 
 
-        usort( $movie , function( $a, $b ) { 
-            
-            if( !isset($a['likeCount']['0']['like_count'] ) ){
-                $a['likeCount']['0']['like_count'] = 0;
-            }
+        if( isset($order_by_likes) ){
 
-            if( !isset($b['likeCount']['0']['like_count'] ) ){
-                $b['likeCount']['0']['like_count'] = 0;
-            }
+            usort( $movie , function( $b, $a ) { 
             
-            return $a['likeCount']['0']['like_count'] <=> $b['likeCount']['0']['like_count'];
-        } );
+                if( !isset($a['likeCount']['0']['like_count'] ) ){
+                    $a['likeCount']['0']['like_count'] = 0;
+                }
+    
+                if( !isset($b['likeCount']['0']['like_count'] ) ){
+                    $b['likeCount']['0']['like_count'] = 0;
+                }
+                
+                return $a['likeCount']['0']['like_count'] <=> $b['likeCount']['0']['like_count'];
+            } );
 
-        echo "<pre>"; print_r($movie) ; die();
+        }
+
+
+        // echo "<pre>"; print_r($movie) ; die();
         return $movie;
     }
 

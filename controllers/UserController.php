@@ -25,7 +25,7 @@ class UserController extends \yii\web\Controller
 
             $user = User::findOne(['id' => Yii::$app->session->get("user_id")]);
 
-            $user_movies = $movie->getMoviesAndLikes($user->id);
+            $user_movies = $movie->getMoviesAndLikes($user->id, $order_by);
             
             return $this->render('/movie/index', [
                 'movies' => $user_movies,

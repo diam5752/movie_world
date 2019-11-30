@@ -139,7 +139,7 @@ $this->title = 'Movie World';
             <div class="col-sm-4"> 
                 <p> 
                     <?php
-                    $url = Url::to(['/user/user-movies','user_id'=>$movie["user"]["id"]]);
+                    $url = Url::to(['/user/index', 'order_by' => Movie::ORDER_BY_LIKES]);
                                 
                     echo Html::a( "Likes", [$url] );
                     ?>
