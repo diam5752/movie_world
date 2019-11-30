@@ -78,6 +78,7 @@ class UserController extends \yii\web\Controller
                 }
 
                 else{
+
                     Yii::$app->session->setFlash('error', 'wrong credentials');
                     return $this->redirect('login'); 
                 }

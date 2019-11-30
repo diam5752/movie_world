@@ -116,9 +116,13 @@ class Movie extends \yii\db\ActiveRecord
         $user_movie = Movie::find()
         ->with(
             [
+                'like' ,
                 'user',
-                'like',
-                'likeCount'
+                'likeCount' => function (ActiveQuery $q) {
+                            $q->groupBy('movie_like.movie_id');
+                            $q->addSelect('movie_like.id, movie_like.movie_id ,count(movie_like.id) as like_count');
+                            return   $q;
+                }
             ]
         )
         // ->joinWith('like')
@@ -126,7 +130,6 @@ class Movie extends \yii\db\ActiveRecord
         ->orderBy($order_by_query)
         ->asArray()
         ->all();
-
 
         return $user_movie;
     }
@@ -146,13 +149,25 @@ class Movie extends \yii\db\ActiveRecord
                             $q->groupBy('movie_like.movie_id');
                             $q->addSelect('movie_like.id, movie_like.movie_id ,count(movie_like.id) as like_count');
                             return   $q;
-
-
-                } //use this for total number of likes
+                }
             ]
         )
         ->asArray()
         ->all();
+
+
+        usort( $movie , function( $a, $b ) { 
+            
+            if( !isset($a['likeCount']['0']['like_count'] ) ){
+                $a['likeCount']['0']['like_count'] = 0;
+            }
+
+            if( !isset($b['likeCount']['0']['like_count'] ) ){
+                $b['likeCount']['0']['like_count'] = 0;
+            }
+            
+            return $a['likeCount']['0']['like_count'] <=> $b['likeCount']['0']['like_count'];
+        } );
 
         echo "<pre>"; print_r($movie) ; die();
         return $movie;

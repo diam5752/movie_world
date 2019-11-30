@@ -77,12 +77,16 @@ $this->title = 'Movie World';
                             <p> 
                             <?php if( isset($movie["like"]["0"]) && Yii::$app->session->get("user_id") ):?>
                                 <span style="color:seagreen"> 
-                                    <?= count($movie["likeCount"]) ?> 
+                                    <?= ($movie["likeCount"]["0"]["like_count"]) ?> 
                                     likes 
                                 </span>
                             <?php else:?>
                                 <span>
-                                    <?= count($movie["likeCount"]) ?> 
+                                    <?php if(isset($movie["likeCount"]["0"]["like_count"]) ): ?>
+                                        <?= $movie["likeCount"]["0"]["like_count"] ?>
+                                    <?php else: ?>
+                                        0
+                                    <?php endif?> 
                                     likes 
                                 </span>
                             <?php endif;?>    
