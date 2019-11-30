@@ -142,12 +142,19 @@ class Movie extends \yii\db\ActiveRecord
                       return   $q->andWhere(["movie_like.user_id" => $user_id ]);
                 }  ,
                 'user',
-                'likeCount' //use this for total number of likes
+                'likeCount' => function (ActiveQuery $q) use ($user_id) {
+                            $q->groupBy('movie_like.movie_id');
+                            $q->addSelect('movie_like.id, movie_like.movie_id ,count(movie_like.id) as like_count');
+                            return   $q;
+
+
+                } //use this for total number of likes
             ]
         )
         ->asArray()
         ->all();
 
+        echo "<pre>"; print_r($movie) ; die();
         return $movie;
     }
 
