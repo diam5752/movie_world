@@ -77,6 +77,15 @@ class Movie extends \yii\db\ActiveRecord
     {
         return $this->hasMany(MovieLike::className(), ['movie_id' => 'id']);
     }
+    public function getHate()
+    {
+        return $this->hasMany(MovieHate::className(), ['movie_id' => 'id']);
+    }
+    
+    public function getHateCount()
+    {
+        return $this->hasMany(MovieHate::className(), ['movie_id' => 'id']);
+    }
 
 
 
@@ -107,7 +116,7 @@ class Movie extends \yii\db\ActiveRecord
                     $order_by_likes = 1;
                     break;
                 case Movie::ORDER_BY_HATES:
-                    $order_by_query = "hates ASC";
+                    $order_by_hates = 1;
                     break;
             }
 
@@ -122,7 +131,13 @@ class Movie extends \yii\db\ActiveRecord
                             $q->groupBy('movie_like.movie_id');
                             $q->addSelect('movie_like.id, movie_like.movie_id ,count(movie_like.id) as like_count');
                             return   $q;
-                }
+                },
+                'hate',
+                'hateCount' => function (ActiveQuery $q) {
+                                $q->groupBy('movie_hate.movie_id');
+                                $q->addSelect('movie_hate.id, movie_hate.movie_id ,count(movie_hate.id) as hate_count');
+                                return   $q;
+        },
             ]
         )
         // ->joinWith('like')
@@ -134,7 +149,7 @@ class Movie extends \yii\db\ActiveRecord
 
         if( isset($order_by_likes) ){
 
-            usort( $user_movie , function( $a, $b ) { 
+            usort( $user_movie , function( $b, $a ) {
             
                 if( !isset($a['likeCount']['0']['like_count'] ) ){
                     $a['likeCount']['0']['like_count'] = 0;
@@ -147,6 +162,22 @@ class Movie extends \yii\db\ActiveRecord
                 return $a['likeCount']['0']['like_count'] <=> $b['likeCount']['0']['like_count'];
             } );
 
+        }
+    
+        if( isset($order_by_hates) ){
+        
+            usort( $user_movie , function( $b, $a ) {
+            
+                if( !isset($a['hateCount']['0']['hate_count'] ) ){
+                    $a['hateCount']['0']['hate_count'] = 0;
+                }
+            
+                if( !isset($b['hateCount']['0']['hate_count'] ) ){
+                    $b['hateCount']['0']['hate_count'] = 0;
+                }
+            
+                return $a['hateCount']['0']['hate_count'] <=> $b['hateCount']['0']['hate_count'];
+            } );
         }
         // echo "<pre>"; print_r($user_movie) ; die();
 
@@ -167,7 +198,7 @@ class Movie extends \yii\db\ActiveRecord
                     $order_by_likes = 1;
                     break;
                 case Movie::ORDER_BY_HATES:
-                    $order_by_query = "hates ASC";
+                    $order_by_hates = 1;
                     break;
             }
 
@@ -184,7 +215,15 @@ class Movie extends \yii\db\ActiveRecord
                             $q->groupBy('movie_like.movie_id');
                             $q->addSelect('movie_like.id, movie_like.movie_id ,count(movie_like.id) as like_count');
                             return   $q;
-                }
+                },
+                'hate' => function (ActiveQuery $q) use ($user_id) {
+                            return   $q->andWhere(["movie_hate.user_id" => $user_id ]);
+                            },
+                'hateCount' => function (ActiveQuery $q) use ($user_id) {
+                    $q->groupBy('movie_hate.movie_id');
+                    $q->addSelect('movie_hate.id, movie_hate.movie_id ,count(movie_hate.id) as hate_count');
+                    return   $q;
+                },
             ]
         )
         ->orderBy($order_by_query)
@@ -206,11 +245,27 @@ class Movie extends \yii\db\ActiveRecord
                 
                 return $a['likeCount']['0']['like_count'] <=> $b['likeCount']['0']['like_count'];
             } );
-
         }
+    
+        if( isset($order_by_hates) ){
+            
+            usort( $movie , function( $b, $a ) {
+            
+                if( !isset($a['hateCount']['0']['hate_count'] ) ){
+                    $a['hateCount']['0']['hate_count'] = 0;
+                }
+            
+                if( !isset($b['hateCount']['0']['hate_count'] ) ){
+                    $b['hateCount']['0']['hate_count'] = 0;
+                }
+            
+                return $a['hateCount']['0']['hate_count'] <=> $b['hateCount']['0']['hate_count'];
+            } );
+        }
+        
 
 
-        // echo "<pre>"; print_r($movie) ; die();
+//         echo "<pre>"; print_r($movie) ; die();
         return $movie;
     }
 

@@ -93,9 +93,23 @@ $this->title = 'Movie World';
                             </p>
                         </div>
 
-                        <div class="col-sm-2" > 
-                            <p> 
-                                <?= 88 ?> hates
+                        <div class="col-sm-2" >
+                            <p>
+                                <?php if( isset($movie["hate"]["0"]) && Yii::$app->session->get("user_id") ):?>
+                                    <span style="color:darkred">
+                                    <?= ($movie["hateCount"]["0"]["hate_count"]) ?>
+                                    likes
+                                </span>
+                                <?php else:?>
+                                    <span>
+                                    <?php if(isset($movie["hateCount"]["0"]["hate_count"]) ): ?>
+                                        <?= $movie["hateCount"]["0"]["hate_count"] ?>
+                                    <?php else: ?>
+                                        0
+                                    <?php endif?>
+                                    hates
+                                </span>
+                                <?php endif;?>
                             </p>
                         </div>
 
@@ -107,13 +121,19 @@ $this->title = 'Movie World';
                                         $url_hate = Url::to(['/movie/hate','user_id'=>Yii::$app->session->get("user_id") ,'movie_id' => $movie["id"]]);
 
                                     ?>
-                                    <?php if( isset($movie["like"]["0"])):?>
-                                        <?= Html::a('Like', [$url_like], ['style' => "background-color:green; color:white" ]) ?>
-                                    <?php else:?>
-                                        <?= Html::a('Like', [$url_like] ) ?>
-                                    <?php endif;?>    
-                                    <span> | </span>
-                                    <?= Html::a('Hate', [$url_hate]) ?>
+                                    <?php if( (int)Yii::$app->session->get("user_id") !== (int)$movie["user"]["id"] ): ?>
+                                        <?php if( isset($movie["like"]["0"])):?>
+                                            <?= Html::a('Like', [$url_like], ['style' => "background-color:green; color:white" ]) ?>
+                                        <?php else:?>
+                                            <?= Html::a('Like', [$url_like] ) ?>
+                                        <?php endif;?>
+                                        <span> | </span>
+                                        <?php if( isset($movie["hate"]["0"])):?>
+                                            <?= Html::a('Hate', [$url_hate], ['style' => "background-color:darkred; color:white" ]) ?>
+                                        <?php else:?>
+                                            <?= Html::a('Hate', [$url_hate] ) ?>
+                                        <?php endif;?>
+                                    <?php endif; ?>
                                 </p>
                             <?php endif ?>
                         </div>
@@ -122,8 +142,13 @@ $this->title = 'Movie World';
                             <p> Posted By 
                                 <?php
                                 $url = Url::to(['/user/user-movies','user_id'=>$movie["user"]["id"]]);
-                                
-                                echo Html::a( $movie["user"]["username"], [$url] );
+    
+                                    if ( (int)Yii::$app->session->get("user_id") === (int)$movie["user"]["id"] ){
+                                        echo Html::a("You", [$url]);
+                                    }
+                                    else {
+                                        echo Html::a($movie["user"]["username"], [$url]);
+                                    }
                                 ?>
                             </p>
                         </div>
@@ -146,7 +171,7 @@ $this->title = 'Movie World';
                 </p>
                 <p> 
                     <?php
-                    $url = Url::to(['/user/user-movies','user_id'=>$movie["user"]["id"]]);
+                    $url = Url::to(['/user/index', 'order_by' => Movie::ORDER_BY_HATES]);
                                 
                     echo Html::a( "Hates" , [$url] );
                     ?>

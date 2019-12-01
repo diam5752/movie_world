@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\MovieHate;
 use Yii;
 use app\models\Movie;
 use app\models\MovieLike;
@@ -150,8 +151,23 @@ class MovieController extends Controller
                     ]
                 )
                 ->all();
+    
+        $hate_check = MovieHate::find()
+            ->where(
+                [
+                    "user_id" => $user_id ,
+                    "movie_id" => $movie_id
+                ]
+            )
+            ->all();
+    
+        if($hate_check ){
+            MovieHate::deleteAll([
+                "user_id" => $user_id ,
+                "movie_id" => $movie_id
+            ]);
+        }
         
-            
         if($like_check ){
 
             MovieLike::deleteAll([
@@ -171,13 +187,50 @@ class MovieController extends Controller
     }
 
     public function actionHate( $user_id , $movie_id){
+    
         
-        $like = new MovieLike();
-        $like->movie_id = $movie_id;
-        $like->user_id = $user_id;
-        $like->save();
-
-
+        $hate_check = MovieHate::find()
+            ->where(
+                [
+                    "user_id" => $user_id ,
+                    "movie_id" => $movie_id
+                ]
+            )
+            ->all();
+    
+        $like_check = MovieLike::find()
+            ->where(
+                [
+                    "user_id" => $user_id ,
+                    "movie_id" => $movie_id
+                ]
+            )
+            ->all();
+    
+    
+        if($like_check ){
+            MovieLike::deleteAll([
+                "user_id" => $user_id ,
+                "movie_id" => $movie_id
+            ]);
+        }
+        
+        if($hate_check ){
+    
+            MovieHate::deleteAll([
+                "user_id" => $user_id ,
+                "movie_id" => $movie_id
+            ]);
+            return $this->redirect('/user/index');
+        }
+        
+    
+        $hate = new MovieHate();
+        $hate->movie_id = $movie_id;
+        $hate->user_id = $user_id;
+        $hate->save();
+    
+    
         return $this->redirect('/user/index');
     }
 

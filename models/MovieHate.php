@@ -5,22 +5,23 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "movie_like".
+ * This is the model class for table "movie_hate".
  *
+ * @property int $id
  * @property int $movie_id
  * @property int $user_id
  *
  * @property Movie $movie
  * @property User $user
  */
-class MovieLike extends \yii\db\ActiveRecord
+class MovieHate extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'movie_like';
+        return 'movie_hate';
     }
 
     /**
@@ -42,6 +43,7 @@ class MovieLike extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
+            'id' => 'ID',
             'movie_id' => 'Movie ID',
             'user_id' => 'User ID',
         ];
